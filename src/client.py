@@ -1,104 +1,15 @@
-# # import grpc
-# # import inspect
-# # from functools import wraps
-
-# # import json
-# # from typing import Optional
-
-# # # import protobof
-# # import remote_execution_pb2
-# # import remote_execution_pb2_grpc
-
-
-
-
-# # class RemoteExecutionClient:
-# #     def __init__(self):
-# #         """Initislsie with empty server directory"""
-# #         self.servers = {} # server_name -- > Address mapping
-# #         self.stubs = {} # server_name --> stub mapping
-
-# #     def add_server(self, name: str, address: str):
-# #         """Add a server to the list of servers"""
-# #         self.servers[name] = address
-# #         self.stubs[name] = remote_execution_pb2_grpc.RemoteExecutorStub(grpc.insecure_channel(address))
-
-# #     def get_stub(self, server_name: str):
-# #         """Get the stub for a server"""
-# #         if server_name not in self.stubs:
-# #             raise ValueError(f"Unkown server {server_name}")
-# #         return self.stubs[server_name]
-    
-
-
-# # # Decorator for remote execution
-
-
-# # def remote(server_name: str):
-# #     def decorator(func):
-# #         @wraps(func)
-# #         async def wrapper(*args, **kwargs):
-# #             from client_manager import get_global_client
-
-# #             # Get the client instance
-# #             global_client = get_global_client()
-
-# #             # get the source code
-# #             source = inspect.getsource(func)
-
-
-# #             # Prepare the request
-# #             request = remote_execution_pb2.FunctionRequest(
-# #                 function_name=func.__name__,
-# #                 function_code=source,
-# #                 args=[json.dumps(arg) for arg in args],
-# #                 kwargs={k: json.dumps(v) for k, v in kwargs.items()}
-# #             )
-
-# #             # Get stub for speciffied server 
-
-
-# #             stub = global_client.get_stub(server_name)
-
-# #             #execute the function remotely
-# #             response = stub.ExecuteFunction(request)
-
-# #             if response.success:
-# #                 return json.loads(response.result)
-# #             else:
-# #                 raise Exception(f"Remote execution failed: {response.error}")
-
-# #         return wrapper
-# #     return decorator 
-
-
-# # client.py
-# import grpc
-# import inspect
-# from functools import wraps
 import json
 from typing import Optional
 import remote_execution_pb2
 import remote_execution_pb2_grpc
-
-# class RemoteExecutionClient:
-#     def __init__(self):
-#         self.servers = {}  # server_name -> address mapping
-#         self.stubs = {}   # server_name -> stub mapping
-    
-#     def add_server(self, name: str, address: str):
-#         self.servers[name] = address
-#         self.stubs[name] = remote_execution_pb2_grpc.RemoteExecutorStub(
-#             grpc.insecure_channel(address)
-#         )
-    
-#     def get_stub(self, server_name: str):
-#         if server_name not in self.stubs:
-#             raise ValueError(f"Unknown server: {server_name}")
-#         return self.stubs[server_name]
+from typing import Union, List
+import random
+import grpc.aio  # Direct import of grpc.aio
+from functools import wraps
+import inspect
+import json
 
 
-# # Utility, might add overhead.
 def get_function_source(func):
     """Extract the function source code without the decorator"""
     source = inspect.getsource(func)
@@ -113,51 +24,7 @@ def get_function_source(func):
     # Rebuild function source
     return '\n'.join(lines)
 
-# def remote(server_name: str):
-#     def decorator(func):
-#         @wraps(func)
-#         async def wrapper(*args, **kwargs):
-#             from client_manager import get_global_client
-            
-#             # Get the client instance
-#             global_client = get_global_client()
-            
-#             # Get function source code without decorator
-#             source = get_function_source(func)
-            
-#             # Prepare request
-#             request = remote_execution_pb2.FunctionRequest(
-#                 function_name=func.__name__,
-#                 function_code=source,
-#                 args=[json.dumps(arg) for arg in args],
-#                 kwargs={k: json.dumps(v) for k, v in kwargs.items()}
-#             )
-            
-#             # Get stub for specified server
-#             stub = global_client.get_stub(server_name)
-            
-#             try:
-#                 # Execute remotely
-#                 response = stub.ExecuteFunction(request)
-                
-#                 if response.success:
-#                     return json.loads(response.result)
-#                 else:
-#                     raise Exception(f"Remote execution failed: {response.error}")
-#             except Exception as e:
-#                 print(f"Remote execution error: {e}")
-#                 raise
-                
-#         return wrapper
-#     return decorator
 
-# client.py
-from typing import Union, List
-import random
-import grpc.aio  # Direct import of grpc.aio
-from functools import wraps
-import inspect
-import json
 
 class RemoteExecutionClient:
     def __init__(self):

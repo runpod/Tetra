@@ -2,8 +2,6 @@ from typing import Optional
 from client import RemoteExecutionClient
 
 
-
-
 class GlobalClientManager:
     _instance: Optional[RemoteExecutionClient] = None
 
