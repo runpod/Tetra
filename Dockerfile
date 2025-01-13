@@ -1,0 +1,18 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install grpcio grpcio-tools protobuf
+
+# Copy files
+COPY . .
+
+# Generate proto files
+RUN python -m grpc_tools.protoc -I./protos --python_out=./src --grpc_python_out=./src ./protos/remote_execution.proto
+
+WORKDIR /app/src
+
+EXPOSE 50051
+
+CMD ["python", "server.py"]
