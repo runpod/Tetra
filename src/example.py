@@ -20,7 +20,7 @@ def preprocess_data(data: list) -> dict:
     }
 
 # Function that will run on remote server
-@remote("server2")
+@remote("server1")
 def advanced_analysis(preprocessed: dict) -> dict:
     """Complex analysis on remote server"""
     squared_sum = sum(preprocessed["squared"])
