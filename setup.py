@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="tetra",                  # Replace with your own package name
-    version="0.0.1",                         # Package version
+    version="0.0.0b1",                         # Package version
     author="Marut Pandya",
     author_email="pandyamarut@gmail.com",
     description="Execute functions remotely",
@@ -15,6 +15,7 @@ setuptools.setup(
     # url="https://github.com/yourusername/your-repo",  # Project URL
     packages=setuptools.find_packages(),     # Automatically find sub-packages
     classifiers=[
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
