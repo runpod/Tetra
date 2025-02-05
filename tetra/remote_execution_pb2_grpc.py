@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import remote_execution_pb2 as remote__execution__pb2
+import tetra.remote_execution_pb2 as remote__execution__pb2
 
 GRPC_GENERATED_VERSION = '1.69.0'
 GRPC_VERSION = grpc.__version__

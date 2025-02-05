@@ -1,7 +1,7 @@
 import json
 from typing import Optional
-import remote_execution_pb2
-import remote_execution_pb2_grpc
+from . import remote_execution_pb2
+from . import remote_execution_pb2_grpc
 from typing import Union, List
 import random
 import grpc.aio  # Direct import of grpc.aio
@@ -80,7 +80,7 @@ def remote(server_spec: Union[str, List[str]], fallback: Union[None, str, List[s
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            from client_manager import get_global_client
+            from tetra.client_manager import get_global_client
             global_client = get_global_client()
             
             source = get_function_source(func)

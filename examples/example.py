@@ -1,12 +1,13 @@
-from client import remote
-from client_manager import get_global_client
+import tetra
+from tetra.client import remote
+from tetra.client_manager import get_global_client
 import asyncio
 
 async def setup_client():
     client = get_global_client()
-    await client.add_server("server1", "localhost:50051")
-    await client.add_server("server2", "205.196.17.34:8519")
-    client.create_pool("compute_pool", ["server1", "server2"])
+    await client.add_server("server1", "localhost:50052")
+    # await client.add_server("server2", "205.196.17.34:8519")
+    client.create_pool("compute_pool", ["server1"])
     return client
 
 # Function that will run on local server
