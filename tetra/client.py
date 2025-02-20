@@ -3,7 +3,6 @@ from typing import Optional
 from . import remote_execution_pb2
 from . import remote_execution_pb2_grpc
 from typing import Union, List
-from tetra.runpod import Runpod
 import random
 import grpc.aio  # Direct import of grpc.aio
 from functools import wraps

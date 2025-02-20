@@ -1,5 +1,5 @@
 from typing import Optional
-from tetra.client import RemoteExecutionClient
+from .client import RemoteExecutionClient
 
 
 class GlobalClientManager:

@@ -1,7 +1,7 @@
 # server.py
 import grpc.aio
-import remote_execution_pb2
-import remote_execution_pb2_grpc
+from tetra import remote_execution_pb2
+from tetra import remote_execution_pb2_grpc
 import json
 import asyncio
 
