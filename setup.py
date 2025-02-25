@@ -30,6 +30,8 @@ setuptools.setup(
     install_requires=[
         'grpcio',
         'grpcio-tools',
+        'runpod',
+        'cloudpickle',
         # Add other dependencies your package needs
     ],
     classifiers=[

@@ -5,7 +5,7 @@ import warnings
 
 from . import remote_execution_pb2 as remote__execution__pb2
 
-GRPC_GENERATED_VERSION = '1.69.0'
+GRPC_GENERATED_VERSION = '1.70.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -26,7 +26,8 @@ if _version_not_supported:
 
 
 class RemoteExecutorStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """The remote execution service definition
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -35,17 +36,19 @@ class RemoteExecutorStub(object):
             channel: A grpc.Channel.
         """
         self.ExecuteFunction = channel.unary_unary(
-                '/remote.RemoteExecutor/ExecuteFunction',
+                '/tetra.RemoteExecutor/ExecuteFunction',
                 request_serializer=remote__execution__pb2.FunctionRequest.SerializeToString,
                 response_deserializer=remote__execution__pb2.FunctionResponse.FromString,
                 _registered_method=True)
 
 
 class RemoteExecutorServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """The remote execution service definition
+    """
 
     def ExecuteFunction(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Execute a function remotely
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -60,14 +63,15 @@ def add_RemoteExecutorServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'remote.RemoteExecutor', rpc_method_handlers)
+            'tetra.RemoteExecutor', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('remote.RemoteExecutor', rpc_method_handlers)
+    server.add_registered_method_handlers('tetra.RemoteExecutor', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
 class RemoteExecutor(object):
-    """Missing associated documentation comment in .proto file."""
+    """The remote execution service definition
+    """
 
     @staticmethod
     def ExecuteFunction(request,
@@ -83,7 +87,7 @@ class RemoteExecutor(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/remote.RemoteExecutor/ExecuteFunction',
+            '/tetra.RemoteExecutor/ExecuteFunction',
             remote__execution__pb2.FunctionRequest.SerializeToString,
             remote__execution__pb2.FunctionResponse.FromString,
             options,
