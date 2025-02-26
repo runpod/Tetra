@@ -12,6 +12,7 @@ import grpc.aio
 from functools import wraps
 import asyncio
 from .runpod import deploy_endpoint, provision_resource
+from .resource_manager import ResourceManager
 
 # Resource state file to persist deployments
 RESOURCE_STATE_FILE = os.path.expanduser("~/.tetra_resources.json")
@@ -52,7 +53,7 @@ def get_function_source(func):
     
     return function_source
 
-class ResourceManager:
+# class ResourceManager:
     """Manages dynamic provisioning and tracking of remote resources."""
     
     def __init__(self):

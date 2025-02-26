@@ -1,88 +1,102 @@
-import tetra
-from tetra.client import remote
-from tetra.client_manager import get_global_client
 import asyncio
+import os
+from tetra import remote, get_global_client
 
-async def setup_client():
-    client = get_global_client()
-    await client.add_server("server1", "localhost:50052")
-    # await client.add_server("server2", "205.196.17.34:8519")
-    client.create_pool("compute_pool", ["server1"])
-    return client
+# Configuration for a GPU resource
+gpu_config = {
+    "api_key": os.environ.get("RUNPOD_API_KEY"),
+    "template_id": "jizsa65yn0",  # Replace with your template ID
+    "gpu_ids": "AMPERE_48",
+    "workers_min": 1,  # Key for persistence: keep worker alive
+    "workers_max": 1,
+    "name": "simple-model-server"
+}
+# Initialize the model server and save to disk
+@remote(
+    resource_config=gpu_config,
+    resource_type="serverless",
+    dependencies=["scikit-learn", "numpy", "torch"]
+)
+def initialize_model():
+    """Initialize a simple ML model and save it to disk."""
+    from sklearn.ensemble import RandomForestClassifier
+    import numpy as np
+    import pickle
+    import os
+    import torch
+    
+    model_path = "/tmp/persisted_model.pkl"
+    is_cuda_available = torch.cuda.is_available()
+    device_count = torch.cuda.device_count()    
+    # Only create and save model if it doesn't exist yet
+    if not os.path.exists(model_path):
+        print("Creating new model instance...")
+        # Create a simple random forest model
+        model = RandomForestClassifier(n_estimators=10)
+        
+        # Train on a tiny dataset
+        X = np.array([[1, 2], [2, 3], [3, 4], [4, 5]])
+        y = np.array([0, 0, 1, 1])
+        model.fit(X, y)
+        
+        # Save the model to disk
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        
+        print(f"Model created, trained, and saved to {model_path}")
+    else:
+        print(f"Model already exists at {model_path}")
+    
+    return {"status": "ready", "model_path": model_path, "cuda_available": is_cuda_available, "device_count": device_count}
 
-# Function that will run on local server
-@remote("server1")
-def preprocess_data(data: list) -> dict:
-    """Initial data processing on local server"""
-    return {
-        "sum": sum(data),
-        "length": len(data),
-        "squared": [x**2 for x in data]
-    }
-
-# Function that will run on remote server
-@remote("server1")
-def advanced_analysis(preprocessed: dict) -> dict:
-    """Complex analysis on remote server"""
-    squared_sum = sum(preprocessed["squared"])
-    mean = preprocessed["sum"] / preprocessed["length"]
+# Make predictions using the model loaded from disk
+@remote(
+    resource_config=gpu_config,
+    resource_type="serverless"
+)
+def predict(features):
+    """Make predictions using the model loaded from disk."""
+    import numpy as np
+    import pickle
+    import os
+    
+    model_path = "/tmp/persisted_model.pkl"
+    
+    # Check if model file exists
+    if not os.path.exists(model_path):
+        return {"error": "Model not initialized. Call initialize_model first."}
+    
+    # Load the model from disk
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    
+    # Convert features to numpy array
+    X = np.array([features])
+    
+    # Make prediction
+    prediction = model.predict(X)[0]
+    probability = model.predict_proba(X)[0].tolist()
     
     return {
-        "mean": mean,
-        "squared_sum": squared_sum,
-        "original_sum": preprocessed["sum"],
-        "sample_size": preprocessed["length"]
-    }
-
-# Function that uses the pool (will run on either server)
-@remote("compute_pool")
-def final_calculations(analysis: dict) -> dict:
-    """Final calculations can run on any available server"""
-    return {
-        "final_score": analysis["squared_sum"] / analysis["sample_size"],
-        "normalized_mean": analysis["mean"] / analysis["sample_size"],
-        "metrics_computed": len(analysis)
+        "prediction": int(prediction),
+        "probability": probability
     }
 
 async def main():
-    await setup_client()
+    # Step 1: Initialize the model (only needed once)
+    print("Initializing model...")
+    init_result = await initialize_model()
+    print(f"Initialization result: {init_result}")
     
-    try:
-        # Initial data
-        input_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        
-        print("Starting distributed processing pipeline...")
-        
-        # Step 1: Preprocess on local server
-        print("\nStep 1: Preprocessing on local server")
-        preprocessed = await preprocess_data(input_data)
-        print(f"Preprocessed results: {preprocessed}")
-        
-        # Step 2: Advanced analysis on remote server
-        print("\nStep 2: Running advanced analysis on remote server")
-        analysis_results = await advanced_analysis(preprocessed)
-        print(f"Analysis results: {analysis_results}")
-        
-        # Step 3: Final calculations on any available server
-        print("\nStep 3: Performing final calculations")
-        final_results = await final_calculations(analysis_results)
-        print(f"Final results: {final_results}")
-        
-        # Bonus: Parallel processing example
-        print("\nBonus: Running parallel processing")
-        data_chunks = [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9]
-        ]
-        
-        parallel_results = await asyncio.gather(
-            *[preprocess_data(chunk) for chunk in data_chunks]
-        )
-        print(f"Parallel processing results: {parallel_results}")
-        
-    except Exception as e:
-        print(f"Error occurred: {e}")
+    # Step 2: Make a prediction
+    print("\nMaking first prediction...")
+    pred1 = await predict([2.5, 3.5])
+    print(f"Prediction result: {pred1}")
+    
+    # Step 3: Make another prediction
+    print("\nMaking second prediction...")
+    pred2 = await predict([3.5, 4.5])
+    print(f"Prediction result: {pred2}")
 
 if __name__ == "__main__":
     asyncio.run(main())
