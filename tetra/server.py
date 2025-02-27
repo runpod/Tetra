@@ -1,9 +1,10 @@
-# server.py
 import grpc.aio
 from tetra import remote_execution_pb2
 from tetra import remote_execution_pb2_grpc
-import json
+import base64
+import cloudpickle
 import asyncio
+import traceback
 
 class RemoteExecutor(remote_execution_pb2_grpc.RemoteExecutorServicer):
     async def ExecuteFunction(self, request, context):
@@ -12,19 +13,26 @@ class RemoteExecutor(remote_execution_pb2_grpc.RemoteExecutorServicer):
             exec(request.function_code, namespace)
             func = namespace[request.function_name]
             
-            args = [json.loads(arg) for arg in request.args]
-            kwargs = {k: json.loads(v) for k, v in request.kwargs.items()}
+            # Deserialize arguments using cloudpickle
+            args = [cloudpickle.loads(base64.b64decode(arg)) for arg in request.args]
+            kwargs = {k: cloudpickle.loads(base64.b64decode(v)) for k, v in request.kwargs.items()}
             
             result = func(*args, **kwargs)
             
+            # Serialize result using cloudpickle
+            serialized_result = base64.b64encode(cloudpickle.dumps(result)).decode('utf-8')
+            
             return remote_execution_pb2.FunctionResponse(
-                result=json.dumps(result),
+                result=serialized_result,
                 success=True
             )
         except Exception as e:
+            traceback_str = traceback.format_exc()
+            error_message = f"{str(e)}\n{traceback_str}"
+            print(f"Error executing function: {error_message}")
             return remote_execution_pb2.FunctionResponse(
                 success=False,
-                error=str(e)
+                error=error_message
             )
 
 async def serve():

@@ -3,6 +3,7 @@
 from .client_manager import get_global_client, GlobalClientManager
 from .client import RemoteExecutionClient, remote
 from . import remote_execution_pb2, remote_execution_pb2_grpc
+from .resource_manager import ResourceManager
 # from .runpod import Runpod
 # from .core.pool.cluster_manager import ClusterManager
 # from .core.pool.worker import Worker
@@ -19,6 +20,7 @@ __all__ = [
     "remote",
     "remote_execution_pb2",
     "remote_execution_pb2_grpc",
+    "ResourceManager",
     # "Runpod",
     # "ClusterManager",
     # "Worker",

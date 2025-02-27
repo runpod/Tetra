@@ -40,4 +40,4 @@ COPY tetra/remote_execution_pb2_grpc.py /app/tetra/
 RUN pip install -e .
 
 # Set the entrypoint
-CMD ["python", "handler.py"]
+CMD ["python", "runpod_handler.py"]
