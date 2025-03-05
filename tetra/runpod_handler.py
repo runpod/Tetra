@@ -12,7 +12,7 @@ import pkg_resources
 
 def install_dependencies(packages):
     """
-    Install Python packages using pip.
+    Install Python packages using pip with proper process completion handling.
     
     Args:
         packages: List of package names or package specifications
@@ -27,33 +27,27 @@ def install_dependencies(packages):
     
     try:
         # Use pip to install the packages
+        # Note: communicate() already waits for process completion
         process = subprocess.Popen(
-            [sys.executable, "-m", "pip", "install"] + packages,
+            [sys.executable, "-m", "pip", "install", "--no-cache-dir"] + packages,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
+        
+        # This waits for the process to complete and captures output
         stdout, stderr = process.communicate()
-        
-        if process.returncode != 0:
-            return False, f"Error installing packages: {stderr.decode()}"
-        
-        # Give some time for package installation to complete
-        time.sleep(1)
         
         # Force reload of installed packages
         importlib.invalidate_caches()
         
-        # Verify installations
-        installed_packages = {pkg.key for pkg in pkg_resources.working_set}
-        for package in packages:
-            # Extract package name from potential version specifier
-            package_name = package.split("==")[0].split(">")[0].split("<")[0].strip()
-            if package_name.lower() not in installed_packages:
-                return False, f"Package {package_name} installation verification failed"
-                
-        return True, stdout.decode()
+        # Simply rely on pip's return code
+        if process.returncode != 0:
+            return False, f"Error installing packages: {stderr.decode()}"
+        else:
+            print(f"Successfully installed packages: {packages}")
+            return True, stdout.decode()
     except Exception as e:
-        return False, f"Exception during package installation: {str(e)}\n{traceback.format_exc()}"
+        return False, f"Exception during package installation: {str(e)}"
 
 def handler(event):
     """
