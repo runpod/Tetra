@@ -13,7 +13,7 @@ gpu_config = {
     "gpu_ids": "AMPERE_48",
     "workers_min": 1,  # Key for persistence: keep worker alive
     "workers_max": 1,
-    "name": "new",
+    "name": "simple-model-server",
 }
 
 
