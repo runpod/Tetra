@@ -21,23 +21,17 @@ RUN pip install --no-cache-dir \
     runpod \
     cloudpickle \
     grpcio \
-    protobuf \
-    aiohttp \
-    # Add common libraries that your functions might need
+    grpcio-tools \
+    "protobuf>=5.26.1,<6.0" \
+    python-dotenv \
     numpy \
-    pandas \
     pillow \
-    matplotlib \
     scikit-learn
 
-# We'll make the handler installable as a package so import paths work correctly
-COPY setup.py /app/
+# Copy the package files
 COPY tetra/__init__.py /app/tetra/
 COPY tetra/remote_execution_pb2.py /app/tetra/
 COPY tetra/remote_execution_pb2_grpc.py /app/tetra/
-
-# Install the tetra package
-RUN pip install -e .
 
 # Set the entrypoint
 CMD ["python", "handler.py"]

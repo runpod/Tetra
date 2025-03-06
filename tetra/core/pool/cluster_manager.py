@@ -9,10 +9,12 @@ from dataclass import WorkerStatus, JobStatus
 import logging
 import inspect
 
+
 def setup_logging(level=logging.INFO, fmt=None):
     if fmt is None:
-        fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     logging.basicConfig(level=level, format=fmt)
+
 
 def get_logger(name=None):
     """
@@ -22,24 +24,24 @@ def get_logger(name=None):
         # Get the caller's module name.
         frame = inspect.stack()[1]
         module = inspect.getmodule(frame[0])
-        name = module.__name__ if module else '__main__'
+        name = module.__name__ if module else "__main__"
     return logging.getLogger(name)
+
 
 logger = get_logger(__name__)
 
-class ClusterManager():
+
+class ClusterManager:
     """
-    Manages workers and Jobs currently in Memory: 
+    Manages workers and Jobs currently in Memory:
     - Runpod for provisioning
     - Real remote execution
-    - Data base for the 
+    - Data base for the
     """
 
     def __init__(self):
-        self.workers = {} # Worker ID -> Worker
+        self.workers = {}  # Worker ID -> Worker
         self.jobs = {}  # Job ID -> Job
-
-
 
     # ----------------- Worker Management -----------------
     # ------------------------------------------------------
@@ -53,7 +55,7 @@ class ClusterManager():
 
         logger.info(f"Added worker {worker.worker_id} to the cluster")
         return worker.worker_id
-    
+
     def remove_worker(self, worker_id):
         """
         Remove a worker from the cluster
@@ -68,16 +70,15 @@ class ClusterManager():
         del self.workers[worker_id]
         logger.info(f"Removed worker {worker_id} from the cluster")
         return True
-    
+
     def list_workers(self):
         """
         List all workers in the cluster
         """
         return list(self.workers.values())
-    
+
     # ----------------- Job Management -----------------
     # ---------------------------------------------------
-
 
     def submit_job(self, resource_config: dict):
         """
@@ -86,10 +87,10 @@ class ClusterManager():
         job = Job(resource_config)
         self.jobs[job.job_id] = job
         logger.info(f"Submitted job {job.job_id} to the cluster")
-        #attempt to schedule the job
+        # attempt to schedule the job
         self.schedule_job(job)
         return job.job_id
-    
+
     def schedule_job(self, job: Job):
         """
         find a suitable worker for the job. It none, Job remains queued.
@@ -99,15 +100,13 @@ class ClusterManager():
             logger.error(f"Job {job.job_id} is not pending")
             return False
 
-
-        #Find worker candidate 
+        # Find worker candidate
         candidate = self.find_idle_worker(job.resource_config)
         if candidate:
             self.assign_job_to_worker(job, candidate)
         else:
             logger.info(f"No worker available for job {job.job_id}")
             # we cn either provision new worker from here and then scehediule the job from here.
-
 
     def find_idle_worker(self, resource_config: dict):
         """
@@ -118,9 +117,8 @@ class ClusterManager():
                 # check the resource config
                 if w.resource_config == resource_config:
                     continue
-                return w 
+                return w
         return None
-    
 
     def assign_job_to_worker(self, job: Job, worker: Worker):
         """
@@ -134,21 +132,19 @@ class ClusterManager():
         logger.info(f"Assigned job {job.job_id} to worker {worker.worker_id}")
         self._execute_job(job, worker)
 
-
-
-
-
     def _execute_job(self, job: Job, worker: Worker):
         """
         Simulate the remote execution. right now, we jsut sleep for 1s.
         In production, what we we can do is:
         - Open a gRPC connection to the worker
-        - pass the job details 
+        - pass the job details
         - wait for the compeltion call back
-        """    
-        try: 
+        """
+        try:
             logger.info(f"Executing job {job.job_id} on worker {worker.worker_id}")
-            time.sleep(1) # Here we can add the actual execution logic, currently it mimics the execution.
+            time.sleep(
+                1
+            )  # Here we can add the actual execution logic, currently it mimics the execution.
 
             # mark the job as completed
             job.status = JobStatus.COMPLETED
@@ -171,9 +167,8 @@ class ClusterManager():
             logger.error(f"Job {job_id} not found")
             return None
         return job
-    
 
-    # this function has retry logic but it's currently fuzzy, we might have to change it. 
+    # this function has retry logic but it's currently fuzzy, we might have to change it.
 
     def retry_queued_jobs(self):
         """
@@ -182,5 +177,3 @@ class ClusterManager():
         for job in self.jobs.values():
             if job.status == JobStatus.QUEUED:
                 self.schedule_job(job)
-
-

@@ -3,9 +3,9 @@ from enum import Enum
 from dataclass import JobStatus
 
 
-class Job():
+class Job:
     """Represents a 'job' in the system
-    
+
     In a real system, this might contain the function to run,
     arguments, and reference to data or code.
     """
@@ -18,8 +18,6 @@ class Job():
         self.worker_id = None
         self.result = None
         self.error = None
-
-
 
     def __repr__(self):
         return f"Job(job_id={self.job_id}, status={self.status})"

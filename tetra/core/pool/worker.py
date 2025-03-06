@@ -1,8 +1,9 @@
-import uuid 
+import uuid
 from enum import Enum
 from dataclass import WorkerStatus
 
-class Worker():
+
+class Worker:
     """Represents a single worker in the pool
 
     For Now we store ressources in memory
@@ -14,6 +15,6 @@ class Worker():
         self.status = WorkerStatus.IDLE
 
         self.current_job_id = None
-        
+
     def __repr__(self):
         return f"Worker(worker_id={self.worker_id}, status={self.status})"
