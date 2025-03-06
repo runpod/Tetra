@@ -22,16 +22,18 @@ setuptools.setup(
     description="Execute functions remotely",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=setuptools.find_packages(include=['tetra', 'tetra.*']),  # Explicitly include tetra and all subpackages
+    packages=setuptools.find_packages(
+        include=["tetra", "tetra.*"]
+    ),  # Explicitly include tetra and all subpackages
     package_data={
-        'tetra': ['*'],  # Include all files in tetra directory
+        "tetra": ["*"],  # Include all files in tetra directory
     },
     include_package_data=True,  # Include non-Python files
     install_requires=[
-        'grpcio',
-        'grpcio-tools',
-        'runpod',
-        'cloudpickle',
+        "grpcio",
+        "grpcio-tools",
+        "runpod",
+        "cloudpickle",
         # Add other dependencies your package needs
     ],
     classifiers=[

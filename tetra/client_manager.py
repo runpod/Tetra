@@ -10,7 +10,6 @@ class GlobalClientManager:
         if cls._instance is None:
             cls._instance = RemoteExecutionClient()
         return cls._instance
-    
 
 
 def get_global_client() -> RemoteExecutionClient:
