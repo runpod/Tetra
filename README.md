@@ -83,11 +83,39 @@ poetry run pytest
 
 ## Docker Support
 
+### Building the Docker Image
+
 Build the Docker image:
 
 ```bash
 docker build -t tetra .
 ```
+
+### Running the Docker Container
+
+Run the container with your RunPod API key:
+
+```bash
+docker run -it --env-file .env tetra
+```
+
+### Troubleshooting Docker Issues
+
+If you encounter platform compatibility issues, you can try:
+
+1. Specifying the platform explicitly:
+   ```bash
+   docker build --platform linux/amd64 -t tetra .
+   ```
+
+2. Running with platform specified:
+   ```bash
+   docker run --platform linux/amd64 -it --env-file .env tetra
+   ```
+
+3. For M1/M2 Mac users:
+   - The PyTorch image is built for AMD64, but will run on ARM64 with emulation
+   - You may see a warning about platform mismatch, but it should still work
 
 ## License
 
