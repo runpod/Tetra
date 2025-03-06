@@ -75,13 +75,7 @@ To contribute to Tetra:
 poetry install
 ```
 
-2. Format the code:
-
-```bash
-poetry run dprint fmt
-```
-
-3. Run tests:
+2. Run tests:
 
 ```bash
 poetry run pytest
